@@ -1,5 +1,11 @@
 # dummy-blockchain-models
 
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/philohsophy/dummy-blockchain-models)
+
+Part of [Dummy-Blockchain project](https://github.com/users/philohsophy/projects/1)
+
+## Outline
+
 Shared models for Dummy-Blockchain project
 
 ## Models
