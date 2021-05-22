@@ -1,4 +1,4 @@
-module github.com/philohsophy/dummy-blockchain-models
+module github.com/philohsophy/blockchain-models
 
 go 1.16
 

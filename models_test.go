@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	models "github.com/philohsophy/dummy-blockchain-models"
+	models "github.com/philohsophy/blockchain-models"
 )
 
 func TestMain(m *testing.M) {
