@@ -1,11 +1,15 @@
 package models_test
 
 import (
+	"crypto/sha256"
+	"math/rand"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/LarryBattle/nonce-golang"
 	"github.com/google/uuid"
-	models "github.com/philohsophy/blockchain-models"
+	"github.com/philohsophy/blockchain-models/models"
 )
 
 func TestMain(m *testing.M) {
@@ -21,8 +25,9 @@ func createValidTransaction() models.Transaction {
 	t.Id = uuid.New()
 	t.RecipientAddress = recipientAddress
 	t.SenderAddress = senderAddress
-	t.Value = 100.21
 
+	rand.Seed(time.Now().UnixNano())
+	t.Value = float32(rand.Intn(999-1)+1) + 0.5
 	return t
 }
 
@@ -100,6 +105,40 @@ func TestInvalidTransaction(t *testing.T) {
 			if invalidTransaction.IsValid() {
 				t.Errorf("Expected transaction to be invalid (Value is '%s')", key)
 			}
+		}
+	})
+}
+
+func TestBlockGetHash(t *testing.T) {
+	var transactions []models.Transaction
+	transactions = append(transactions, createValidTransaction())
+	transactions = append(transactions, createValidTransaction())
+	transactions = append(transactions, createValidTransaction())
+
+	var block models.Block
+	block.PreviousBlockHash = sha256.Sum256([]byte("I am the previous block's header\n"))
+	block.Timestamp = time.Now().UnixNano()
+	block.NBits = 1
+	block.Nonce = nonce.NewToken()
+	block.Transactions = transactions
+
+	t.Run("It should calculate the merkle root hash", func(t *testing.T) {
+		_ = block.GetHash()
+
+		var emptyHash [32]byte
+		if block.MerkleRootHash == emptyHash {
+			t.Error("Expected merkle root hash to be calculated")
+		}
+	})
+
+	t.Run("It should return a different hash if the nonce changes", func(t *testing.T) {
+		hash1 := block.GetHash()
+
+		block.Nonce = nonce.NewToken()
+		hash2 := block.GetHash()
+
+		if hash1 == hash2 {
+			t.Error("Expected hash to be different if nonce changes")
 		}
 	})
 }
