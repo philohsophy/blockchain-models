@@ -116,17 +116,17 @@ func TestBlockGetHash(t *testing.T) {
 	transactions = append(transactions, createValidTransaction())
 
 	var block models.Block
-	block.Header.PreviousBlockHash = sha256.Sum256([]byte("I am the previous block's header\n"))
-	block.Header.Timestamp = time.Now().UnixNano()
-	block.Header.NBits = 1
-	block.Header.Nonce = nonce.NewToken()
+	block.PreviousBlockHash = sha256.Sum256([]byte("I am the previous block's header\n"))
+	block.Timestamp = time.Now().UnixNano()
+	block.NBits = 1
+	block.Nonce = nonce.NewToken()
 	block.Transactions = transactions
 
 	t.Run("It should calculate the merkle root hash", func(t *testing.T) {
 		_ = block.GetHash()
 
 		var emptyHash [32]byte
-		if block.Header.MerkleRootHash == emptyHash {
+		if block.MerkleRootHash == emptyHash {
 			t.Error("Expected merkle root hash to be calculated")
 		}
 	})
@@ -134,7 +134,7 @@ func TestBlockGetHash(t *testing.T) {
 	t.Run("It should return a different hash if the nonce changes", func(t *testing.T) {
 		hash1 := block.GetHash()
 
-		block.Header.Nonce = nonce.NewToken()
+		block.Nonce = nonce.NewToken()
 		hash2 := block.GetHash()
 
 		if hash1 == hash2 {
