@@ -22,13 +22,10 @@ type Block struct {
 func calculateHashOfStruct(myStruct interface{}) [32]byte {
 	// "%+v" to conserve the field names
 	serializedHash := fmt.Sprintf("%+v", myStruct)
-	//fmt.Println("------------------------------------------")
-	//fmt.Println(serializedHash)
 	return sha256.Sum256([]byte(serializedHash))
 }
 
 func (b *Block) GetHash() [32]byte {
 	b.MerkleRootHash = calculateHashOfStruct(b.Transactions)
-	hash := calculateHashOfStruct(b.header)
-	return hash
+	return calculateHashOfStruct(b.header)
 }
