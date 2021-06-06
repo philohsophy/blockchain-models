@@ -31,6 +31,22 @@ func createValidTransaction() models.Transaction {
 	return t
 }
 
+func createValidBlock() models.Block {
+	var transactions []models.Transaction
+	transactions = append(transactions, createValidTransaction())
+	transactions = append(transactions, createValidTransaction())
+	transactions = append(transactions, createValidTransaction())
+
+	var b models.Block
+	b.PreviousBlockHash = sha256.Sum256([]byte("I am the previous block's header\n"))
+	b.Timestamp = time.Now().UnixNano()
+	b.NBits = 1
+	b.Nonce = nonce.NewToken()
+	b.Transactions = transactions
+
+	return b
+}
+
 func TestValidTransaction(t *testing.T) {
 	transaction := createValidTransaction()
 	if !transaction.IsValid() {
@@ -110,17 +126,7 @@ func TestInvalidTransaction(t *testing.T) {
 }
 
 func TestBlockGetHash(t *testing.T) {
-	var transactions []models.Transaction
-	transactions = append(transactions, createValidTransaction())
-	transactions = append(transactions, createValidTransaction())
-	transactions = append(transactions, createValidTransaction())
-
-	var block models.Block
-	block.PreviousBlockHash = sha256.Sum256([]byte("I am the previous block's header\n"))
-	block.Timestamp = time.Now().UnixNano()
-	block.NBits = 1
-	block.Nonce = nonce.NewToken()
-	block.Transactions = transactions
+	block := createValidBlock()
 
 	t.Run("It should calculate the merkle root hash", func(t *testing.T) {
 		_ = block.GetHash()
@@ -131,6 +137,8 @@ func TestBlockGetHash(t *testing.T) {
 		}
 	})
 
+	// TODO: check that calculated hash is not zero
+
 	t.Run("It should return a different hash if the nonce changes", func(t *testing.T) {
 		hash1 := block.GetHash()
 
@@ -139,6 +147,62 @@ func TestBlockGetHash(t *testing.T) {
 
 		if hash1 == hash2 {
 			t.Error("Expected hash to be different if nonce has changed")
+		}
+	})
+}
+
+func TestValidBlock(t *testing.T) {
+	block := createValidBlock()
+	if !block.IsValid() {
+		t.Error("Expected block to be valid")
+	}
+}
+
+func TestInvalidBlock(t *testing.T) {
+	block := createValidBlock()
+
+	t.Run("Check PreviousBlockHash", func(t *testing.T) {
+		invalidBlock := block
+		invalidBlock.PreviousBlockHash = [32]byte{}
+
+		if invalidBlock.IsValid() {
+			t.Error("Expected block to be invalid (PreviousBlockHash is zero)")
+		}
+	})
+
+	t.Run("Check Timestamp", func(t *testing.T) {
+		invalidBlock := block
+		invalidBlock.Timestamp = 0
+
+		if invalidBlock.IsValid() {
+			t.Error("Expected block to be invalid (Timestamp is zero)")
+		}
+	})
+
+	t.Run("Check NBits", func(t *testing.T) {
+		invalidBlock := block
+		invalidBlock.NBits = 0
+
+		if invalidBlock.IsValid() {
+			t.Error("Expected block to be invalid (NBits is zero)")
+		}
+	})
+
+	t.Run("Check Nonce", func(t *testing.T) {
+		invalidBlock := block
+		invalidBlock.Nonce = ""
+
+		if invalidBlock.IsValid() {
+			t.Error("Expected block to be invalid (Nonce is zero)")
+		}
+	})
+
+	t.Run("Check Transactions", func(t *testing.T) {
+		invalidBlock := block
+		invalidBlock.Transactions = []models.Transaction{}
+
+		if invalidBlock.IsValid() {
+			t.Error("Expected block to be invalid (Transactions is zero)")
 		}
 	})
 }
