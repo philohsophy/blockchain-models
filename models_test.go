@@ -58,47 +58,50 @@ func TestInvalidTransaction(t *testing.T) {
 	transaction := createValidTransaction()
 
 	t.Run("Check Id", func(t *testing.T) {
-		invalidTransaction := models.Transaction{SenderAddress: transaction.SenderAddress, RecipientAddress: transaction.RecipientAddress, Value: transaction.Value}
+		transactionCopy := transaction
+		transactionCopy.Id = uuid.Nil
 
-		if invalidTransaction.IsValid() {
+		if transactionCopy.IsValid() {
 			t.Error("Expected transaction to be invalid (Id is 'nil')")
 		}
 	})
 
 	t.Run("Check SenderAddress", func(t *testing.T) {
-		transaction := models.Transaction{Id: transaction.Id, RecipientAddress: transaction.RecipientAddress, Value: transaction.Value}
+		transactionCopy := transaction
 
 		var invalidTransactions = make(map[string]models.Transaction)
-		invalidTransactions["nil"] = transaction
-		transaction.SenderAddress = models.Address{Street: "FooStreet", HouseNumber: "1", Town: "FooTown"}
-		invalidTransactions["missing 'Name'"] = transaction
-		transaction.SenderAddress = models.Address{Name: "Foo", HouseNumber: "1", Town: "FooTown"}
-		invalidTransactions["missing 'Street'"] = transaction
-		transaction.SenderAddress = models.Address{Name: "Foo", Street: "FooStreet", Town: "FooTown"}
-		invalidTransactions["missing 'HouseNumber'"] = transaction
-		transaction.SenderAddress = models.Address{Name: "Foo", Street: "FooStreet", HouseNumber: "1"}
-		invalidTransactions["missing 'Town'"] = transaction
+		transactionCopy.SenderAddress = models.Address{}
+		invalidTransactions["nil"] = transactionCopy
+		transactionCopy.SenderAddress = models.Address{Street: "FooStreet", HouseNumber: "1", Town: "FooTown"}
+		invalidTransactions["missing 'Name'"] = transactionCopy
+		transactionCopy.SenderAddress = models.Address{Name: "Foo", HouseNumber: "1", Town: "FooTown"}
+		invalidTransactions["missing 'Street'"] = transactionCopy
+		transactionCopy.SenderAddress = models.Address{Name: "Foo", Street: "FooStreet", Town: "FooTown"}
+		invalidTransactions["missing 'HouseNumber'"] = transactionCopy
+		transactionCopy.SenderAddress = models.Address{Name: "Foo", Street: "FooStreet", HouseNumber: "1"}
+		invalidTransactions["missing 'Town'"] = transactionCopy
 
 		for key, invalidTransaction := range invalidTransactions {
 			if invalidTransaction.IsValid() {
-				t.Errorf("Expected transaction to be invalid (RecipientAddress is %s)", key)
+				t.Errorf("Expected transaction to be invalid (SenderAddress is %s)", key)
 			}
 		}
 	})
 
 	t.Run("Check RecipientAddress", func(t *testing.T) {
-		transaction := models.Transaction{Id: transaction.Id, SenderAddress: transaction.SenderAddress, Value: transaction.Value}
+		transactionCopy := transaction
 
 		var invalidTransactions = make(map[string]models.Transaction)
-		invalidTransactions["nil"] = transaction
-		transaction.RecipientAddress = models.Address{Street: "FooStreet", HouseNumber: "1", Town: "FooTown"}
-		invalidTransactions["missing 'Name'"] = transaction
-		transaction.RecipientAddress = models.Address{Name: "Foo", HouseNumber: "1", Town: "FooTown"}
-		invalidTransactions["missing 'Street'"] = transaction
-		transaction.RecipientAddress = models.Address{Name: "Foo", Street: "FooStreet", Town: "FooTown"}
-		invalidTransactions["missing 'HouseNumber'"] = transaction
-		transaction.RecipientAddress = models.Address{Name: "Foo", Street: "FooStreet", HouseNumber: "1"}
-		invalidTransactions["missing 'Town'"] = transaction
+		transactionCopy.RecipientAddress = models.Address{}
+		invalidTransactions["nil"] = transactionCopy
+		transactionCopy.RecipientAddress = models.Address{Street: "FooStreet", HouseNumber: "1", Town: "FooTown"}
+		invalidTransactions["missing 'Name'"] = transactionCopy
+		transactionCopy.RecipientAddress = models.Address{Name: "Foo", HouseNumber: "1", Town: "FooTown"}
+		invalidTransactions["missing 'Street'"] = transactionCopy
+		transactionCopy.RecipientAddress = models.Address{Name: "Foo", Street: "FooStreet", Town: "FooTown"}
+		invalidTransactions["missing 'HouseNumber'"] = transactionCopy
+		transactionCopy.RecipientAddress = models.Address{Name: "Foo", Street: "FooStreet", HouseNumber: "1"}
+		invalidTransactions["missing 'Town'"] = transactionCopy
 
 		for key, invalidTransaction := range invalidTransactions {
 			if invalidTransaction.IsValid() {
@@ -108,14 +111,13 @@ func TestInvalidTransaction(t *testing.T) {
 	})
 
 	t.Run("Check Value", func(t *testing.T) {
-		transaction := models.Transaction{Id: transaction.Id, SenderAddress: transaction.SenderAddress, RecipientAddress: transaction.RecipientAddress}
+		transactionCopy := transaction
 
 		var invalidTransactions = make(map[string]models.Transaction)
-		invalidTransactions["nil"] = transaction
-		transaction.Value = 0.00
-		invalidTransactions["null"] = transaction
-		transaction.Value = -100.21
-		invalidTransactions["negative"] = transaction
+		transactionCopy.Value = 0
+		invalidTransactions["null"] = transactionCopy
+		transactionCopy.Value = -100.21
+		invalidTransactions["negative"] = transactionCopy
 
 		for key, invalidTransaction := range invalidTransactions {
 			if invalidTransaction.IsValid() {
